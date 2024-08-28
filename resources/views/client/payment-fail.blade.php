@@ -6,17 +6,17 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 page-left">
-                    <div class="image">
-                        <img class="img-responsive" src="{{asset('storage/'.$image)}}" alt="Image">
-                    </div>
-                    <div class="title">Thank you. Order Paid</div>
-                    <div class="content">Download the qr code and keep it safe</div>
-                    <a class="btn btn-primary" href="index.html"><i class="fa fa-home" aria-hidden="true"></i><span>Download</span></a>
+                    {{-- <div class="image">
+                        <img class="img-responsive" src="{{asset('assets/client/img/transfailed.png')}}" alt="Image 404">
+                    </div> --}}
+                    <div class="title">Transaction Failed</div>
+                    <div class="content">We could not process the payment </div>
+                    <a class="btn btn-primary" href="/"><i class="fa fa-home" aria-hidden="true"></i><span>Back to home</span></a>
                 </div>
 
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 page-right">
                     <div class="image">
-                        <img class="img-responsive" src="{{asset('assets/client/img/check_mark.png')}}" alt="Image ">
+                        <img class="img-responsive" src="{{asset('assets/client/img/transfailed.png')}}" alt="Image">
                     </div>
                 </div>
             </div>

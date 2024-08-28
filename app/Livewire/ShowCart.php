@@ -12,7 +12,7 @@ class ShowCart extends Component
 {
 
     public $event;
-    public $total;
+    public $total = 0;
 
     public function mount($event){
         $this->event = $event;
@@ -22,13 +22,17 @@ class ShowCart extends Component
     {
         $orders = Order::where('user_id', Auth::user()->id)->where('status', Order::ORDER_STATUS_CREATED)->first();
 
-
+        if($orders){
 
         $this->total = DB::table('order_items')
+        ->where('order_id', $orders->id)
         ->join('tickets', 'order_items.ticket_id', '=', 'tickets.id')
         ->sum(DB::raw('order_items.quantity * tickets.price'));
-        $orders->amount = $this->total;
-        $orders->save();
+
+            $orders->amount = $this->total;
+            $orders->save();
+        }
+
 
         return view('livewire.show-cart',compact('orders'));
     }
@@ -95,6 +99,6 @@ class ShowCart extends Component
 
     }
 
-   
+
 
 }

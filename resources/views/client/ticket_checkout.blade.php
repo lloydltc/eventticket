@@ -8,8 +8,6 @@
 
 
 
-
-
             <div id="content" class="site-content">
 				<!-- Breadcrumb -->
 
@@ -130,4 +128,4 @@
 
 
 
-            @include('layouts.client-footer')
+@include('layouts.client-footer')

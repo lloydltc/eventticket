@@ -73,6 +73,9 @@
 
                         <tbody>
 
+                            @if (!empty($orders))
+
+
                             @foreach ($orders->orderItem as $orderItem )
 
 
@@ -111,6 +114,7 @@
                                 </td>
                             </tr>
                             @endforeach
+                            @endif
 
                         </tbody>
 

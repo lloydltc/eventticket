@@ -12,7 +12,8 @@ use App\Models\Category;
 use App\Models\Payment;
 use App\Http\Requests\PaymentRequest;
 use Illuminate\Support\Facades\Auth;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use LaravelQRCode\Facades\QRCode;
+use Illuminate\Support\Facades\Storage;
 
 class HomeController extends Controller
 {
@@ -25,7 +26,10 @@ class HomeController extends Controller
         $orderCount =0;
         if(Auth::check()){
             $order = Order::where('user_id', Auth::user()->id)->where('status', Order::ORDER_STATUS_CREATED)->first();
-            $orderCount = $order->orderItem->count();
+            if(!empty($order)){
+                $orderCount = $order->orderItem->count();
+            }
+
         }
 
         return view('client.index', compact(['events','orderCount']));
@@ -38,7 +42,9 @@ class HomeController extends Controller
         $orderCount =0;
         if(Auth::check()){
             $order = Order::where('user_id', Auth::user()->id)->where('status', Order::ORDER_STATUS_CREATED)->first();
-            $orderCount = $order->orderItem->count();
+            if(!empty($order)){
+                $orderCount = $order->orderItem->count();
+            }
 
             return view('client.ticket_cart', compact(['event','orderCount']));
         }else{
@@ -96,8 +102,8 @@ class HomeController extends Controller
 
         if(!empty($request) && $request->status == 'Paid'){
             $order = Order::where('user_id', Auth::user()->id)->where('status', Order::ORDER_STATUS_CREATED)->first();
-            $payment = Payment::where('user_id', Auth::user()->id)->where('status', Order::ORDER_STATUS_CREATED)->first();
-            $order->status =  Order::ORDER_STATUS_PAID;
+            $payment = Payment::where('user_id', Auth::user()->id)->where('order_id', $order->id)->first();
+
             $payment->status =  Order::ORDER_STATUS_PAID;
             $payment->save();
             $order->save();
@@ -108,6 +114,7 @@ class HomeController extends Controller
     }
 
     public function paymentConfirmation(){
+        sleep(3);
         $paynow = new \Paynow\Payments\Paynow(
             '19122',
             'dc9f152a-6caa-42a7-b3f5-6c35de8ba3c4',
@@ -117,33 +124,41 @@ class HomeController extends Controller
         );
 
         $order = Order::where('user_id', Auth::user()->id)->where('status', Order::ORDER_STATUS_CREATED)->first();
-        $payment = Payment::where('user_id', Auth::user()->id)->where('status', Order::ORDER_STATUS_CREATED)->first();
-        $pollUrl = $payment->pollurl;
+        if(!empty($order)){
+            $payment = Payment::where('user_id', Auth::user()->id)->where('order_id', $order->id)->first();
+            $pollUrl = $payment->pollurl;
 
-        $status = $paynow->pollTransaction($pollUrl);
-        if($status->paid()) {
+            $status = $paynow->pollTransaction($pollUrl);
+            if($status->paid()) {
 
-        $order->status =  Order::ORDER_STATUS_PAID;
-        $payment->status =  Order::ORDER_STATUS_PAID;
+            $order->status =  Order::ORDER_STATUS_PAID;
+            $payment->status =  Order::ORDER_STATUS_PAID;
 
 
-        $code = bcrypt($order->id.$payment->id.$payment->reference);
+            $code = bcrypt($order->id.$payment->id.$payment->reference);
 
-            $image = QrCode::format('png')
-            ->size(300)
-            ->color(255, 0, 0)
-            ->backgroundColor(255, 255, 255)
-            ->margin(1)
-            ->generate( $code);
-            $fileName = time().'_' .  $image->getClientOriginalName();
-            $filePath =  $image->storeAs('qr', $fileName, 'public');
+                $image = time().$order->id.'.'.'png';
+                QRCode::text($code)
+                ->setOutfile(Storage::disk("public")->path($image))
+                ->png();
+               
+                // $fileName = time().'_' .  $image->getClientOriginalName();
+                // $filePath =  $image->storeAs('qr', $fileName, 'public');
 
-            $payment->code = $code;
-            $payment->save();
-            $order->save();
+                $payment->code = $code;
+                $payment->save();
+                $order->save();
+                // orderBy('updated_at','DESC')->first()->id
+            return view('client.payment-confirmation', compact(['order','image']));
+        }else{
+            return view('client.payment-fail', compact('order'));
 
-        return view('client.payment-confirmation', compact(['order','image']));
-    }
+        }
+
+        }else{
+            return redirect()->route('home')->with('succes', 'Your cart is empty');
+        }
+
     }
 
     public function generateQr($id){
@@ -154,7 +169,9 @@ class HomeController extends Controller
     public function checkout(){
         $orders = Order::where('user_id', Auth::user()->id)->where('status', Order::ORDER_STATUS_CREATED)->first();
         $orderCount =0;
-        $orderCount = $orders->orderItem->count();
+        if(!empty($order)){
+            $orderCount = $order->orderItem->count();
+        }
 
 
         return view('client.ticket_checkout',compact(['orders','orderCount']));
