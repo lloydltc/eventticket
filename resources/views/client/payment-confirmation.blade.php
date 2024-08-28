@@ -11,7 +11,7 @@
                     </div>
                     <div class="title">Thank you. Order Paid</div>
                     <div class="content">Download the qr code and keep it safe</div>
-                    <a class="btn btn-primary" href="index.html"><i class="fa fa-home" aria-hidden="true"></i><span>Download</span></a>
+                    <a class="btn btn-primary" href="{{ route('downloadImage', ['filename' => $image]) }}"><i class="fa fa-home" aria-hidden="true"></i><span>Download</span></a>
                 </div>
 
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 page-right">

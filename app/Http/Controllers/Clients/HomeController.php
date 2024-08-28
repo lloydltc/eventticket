@@ -14,6 +14,9 @@ use App\Http\Requests\PaymentRequest;
 use Illuminate\Support\Facades\Auth;
 use LaravelQRCode\Facades\QRCode;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\File;
 
 class HomeController extends Controller
 {
@@ -141,7 +144,7 @@ class HomeController extends Controller
                 QRCode::text($code)
                 ->setOutfile(Storage::disk("public")->path($image))
                 ->png();
-               
+
                 // $fileName = time().'_' .  $image->getClientOriginalName();
                 // $filePath =  $image->storeAs('qr', $fileName, 'public');
 
@@ -161,9 +164,19 @@ class HomeController extends Controller
 
     }
 
-    public function generateQr($id){
+    public function downloadImage($filename)
+    {
+        $path = public_path('storage/'.$filename);
+        // dd($path);
 
+        // Check if the file exists
+        if (!File::exists($path)) {
+            abort(404, 'File not found.');
+        }
 
+        // Return the file as a response
+        Response::download($path);
+        return Response::download($path);
     }
 
     public function checkout(){

@@ -36,4 +36,6 @@ Route::middleware(['guest'])->group(function () {
 
             Route::get('/checkout', [\App\Http\Controllers\Clients\HomeController::class,'checkout'])->name('checkout');
             Route::post('/paynow-payment', [\App\Http\Controllers\Clients\HomeController::class,'paynow'])->name('paynowPayment');
+
         });
+        Route::get('/download-image/{filename}', [\App\Http\Controllers\Clients\HomeController::class, 'downloadImage'])->name('downloadImage');
